@@ -20,7 +20,6 @@ const useFetchCurrent = (endpoint, query) => {
             'X-RapidAPI-Host': 'ai-weather-by-meteosource.p.rapidapi.com'
         }
     };
-
     const fetchData = async () => {
         setIsLoading(true);
         try {

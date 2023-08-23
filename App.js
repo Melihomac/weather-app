@@ -12,11 +12,16 @@ import {
 } from "react-native";
 import useFetchCurrent from './hook/useFetchCurrent';
 import useFetchHourly from './hook/useFetchHourly';
-import CData from './components/current/CurrentData'
 import dayjs from 'dayjs';
 
 export default function App() {
+  // Image for default value
   let image = { uri: 'https://e1.pxfuel.com/desktop-wallpaper/1000/717/desktop-wallpaper-5-rainy-day-rainy-weather-aesthetic.jpg' };
+  // Istanbul Hour for current Date
+  const IstanbulHour = new Date()
+  // Converting hour Istanbul to LosAngeles
+  const LosAngeles = IstanbulHour.toLocaleString("en-US", { timeZone: "America/Los_Angeles" })
+  // data, isLoading, error coming from useFetchCurrent and it has a query for LosAngeles. It has current values
   const { data, isLoading, error } = useFetchCurrent("current", {
     query: {
       lat: "37.81021N",
@@ -26,6 +31,7 @@ export default function App() {
       units: 'auto'
     }
   })
+  // This data is for LosAngeles hourly from API
   const { dataHourly } = useFetchHourly("hourly", {
     query: {
       lat: "37.81021N",
@@ -35,19 +41,32 @@ export default function App() {
       units: 'auto'
     }
   })
+  // Celcius formula for converting to the fahrenheit
   const CelciusFormula = (data?.current?.temperature - 32) * 5 / 9
+  // Its converting to string for readable
   let Celcius = Math.floor(CelciusFormula)
+  // API has an data for ex:"Sunny" or "Cloudy".
   let dataSummary = data?.current?.summary
+  // API has an date for ex:"2023-12-1, 4:00:00"
   let dataHour = dataHourly?.hourly?.data?.[0]?.date
+  // API has an celcius for ex:"15"
   let dataCelcius = dataHourly?.hourly?.data?.[0]?.temperature
+  // Celcius formula for converting to the fahrenheit
   dataCelcius = (dataCelcius - 32) * 5 / 9
+  // Its converting to string for readable
   dataCelcius = Math.floor(dataCelcius)
+  // dayjs library for using local time
   const date = dayjs(dataHour)
-  let dataFor = dataHourly?.hourly?.data?.[0]
-  console.log(dataFor)
+  //let dataFor = dataHourly?.hourly?.data?.[0]
+  // Split is for converting data and to get only hour value
+  let LosAngelesBefore = LosAngeles.split(':')[0]
+  // switch for changing weather value (dataSummary) 
   switch (dataSummary) {
     case "Mostly cloudy":
       image = { uri: 'https://blogs.sap.com/wp-content/uploads/2015/07/cloudy_744190.png' }
+      break;
+    case "Partly clear":
+      image = { uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs2xQLRTr09-Fcjn2tXmj0IOEVqObe7-9h_Sh5Bqt5h7aiQjsZpvPCymvw9-F-3SOhq9E&usqp=CAU' }
       break;
     case "Partly sunny":
       image = { uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs2xQLRTr09-Fcjn2tXmj0IOEVqObe7-9h_Sh5Bqt5h7aiQjsZpvPCymvw9-F-3SOhq9E&usqp=CAU' }
@@ -64,9 +83,13 @@ export default function App() {
     default:
       image = { uri: null }
   }
-  for (let index = 0; index < dataFor?.length; index++) {
-    const element = array[index];
-  }
+
+  // let dateFor = date.hour()
+  // let hourFor
+  // for (let index = 0; index < dateFor; index++) {
+  //   console.log(index)
+  // }
+
   return (
     <>
       <View style={styles.container}>
@@ -82,9 +105,8 @@ export default function App() {
             {data?.current?.summary}
           </Text>
           <View style={styles.hourlyContainer}>
-            <Text style={styles.date}>{
-              date.hour()
-            }
+            <Text style={styles.date}>
+              {date.hour() == LosAngelesBefore.slice(-1) ? <Text>Now</Text> : date.hour()}
             </Text>
             <Text style={styles.temperatureHour}>
               {dataCelcius}°
